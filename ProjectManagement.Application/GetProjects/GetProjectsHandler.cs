@@ -15,13 +15,11 @@ public class GetProjectsHandler
         Validate(query);
 
         var projects = await _repository.GetAllAsync();
+
         return projects
-            .Select(p => new ProjectListItemDto
-            {
-                ProjectId = p.Id.ToString(),
-                DisplayName = p.Name.ToUpperInvariant()
-            })
+            .Select(ProjectPresentationPolicy.ToListItem)
             .ToList();
+
     }
 
     private void Validate(GetProjectsQuery query)
