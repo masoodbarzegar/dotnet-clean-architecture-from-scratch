@@ -1,5 +1,4 @@
 ﻿using ProjectManagement.Domain.Entities;
-using ProjectManagement.Application.Projects;
 
 namespace ProjectManagement.Application.Projects.GetProjects;
 
@@ -11,16 +10,16 @@ public class GetProjectsHandler
         _repository = repository;
     }
 
-    public async Task<List<ProjectDto>> Handle(GetProjectsQuery query)
+    public async Task<List<ProjectListItemDto>> Handle(GetProjectsQuery query)
     {
         Validate(query);
 
         var projects = await _repository.GetAllAsync();
         return projects
-            .Select(p => new ProjectDto
+            .Select(p => new ProjectListItemDto
             {
-                Id = p.Id,
-                Name = p.Name,
+                ProjectId = p.Id.ToString(),
+                DisplayName = p.Name.ToUpperInvariant()
             })
             .ToList();
     }
