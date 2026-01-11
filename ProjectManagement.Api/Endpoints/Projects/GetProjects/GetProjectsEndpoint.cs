@@ -38,12 +38,14 @@ public class GetProjectsEndpoint
             PageSize = req.PageSize
         };
 
-        var result = await _handler.Handle(query, ct);
+        var (items, total) = await _handler.Handle(query, ct);
 
-        // Mapping: Result → Response
         Response = new GetProjectsResponse
         {
-            Items = result
+            Items = items,
+            TotalCount = total,
+            Page = req.Page,
+            PageSize = req.PageSize
         };
     }
 }

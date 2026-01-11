@@ -10,15 +10,23 @@ public class GetProjectsHandler
         _repository = repository;
     }
 
-    public async Task<List<ProjectListItemDto>> Handle(
-    GetProjectsQuery query,
-    CancellationToken ct)
+    public async Task<(IReadOnlyList<ProjectListItemDto> Items, int TotalCount)> 
+        Handle(GetProjectsQuery query, CancellationToken ct)
     {
-        var projects = await _repository.GetAllAsync(ct);
+        var total = await _repository.CountAsync(ct);
 
-        return projects
+        var projects = await _repository.GetPageAsync(
+             page: query.Page,
+             pageSize: query.PageSize,
+             ct: ct
+        );
+
+        var items = projects
             .Select(ProjectPresentationPolicy.ToListItem)
             .ToList();
+
+        return (items, total);
+
     }
 }
 

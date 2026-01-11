@@ -6,4 +6,7 @@ namespace ProjectManagement.Api.Endpoints.Projects.GetProjects;
 public class GetProjectsResponse
 {
     public IReadOnlyList<ProjectListItemDto> Items { get; init; } = [];
+    public int TotalCount { get; init; }
+    public int Page { get; init; }
+    public int PageSize { get; init; }
 }

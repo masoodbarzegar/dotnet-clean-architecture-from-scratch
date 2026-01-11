@@ -14,8 +14,22 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<List<Project>> GetAllAsync(CancellationToken ct)
+    public async Task<int> CountAsync(CancellationToken ct)
     {
-        return await _context.Projects.ToListAsync(ct);
+        return await _context.Projects.CountAsync(ct);
+    }
+
+    public async Task<List<Project>> GetPageAsync(
+        int page,
+        int pageSize,
+        CancellationToken ct)
+    {
+            var skip = (page - 1) * pageSize;
+
+            return await _context.Projects
+                .OrderBy(p => p.Id)          // deterministic paging
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync(ct);
     }
 }
