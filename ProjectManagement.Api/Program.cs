@@ -1,20 +1,29 @@
-using Microsoft.EntityFrameworkCore;
-using ProjectManagement.Infrastructure.Persistence;
+using FastEndpoints;
+using FastEndpoints.Swagger;
+using ProjectManagement.Application;
+using ProjectManagement.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
+// ---------- Services ----------
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument(o =>
 {
-    options.UseSqlite("Data Source=projectmanagement.db");
+    o.DocumentSettings = s =>
+    {
+        s.Title = "Project Management API";
+        s.Version = "v1";
+    };
 });
+
+// Application & Infrastructure
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.MapGet("/projects", async (AppDbContext db) =>
-{
-    var projects = await db.Projects.ToListAsync();
-    return Results.Ok(projects);
-});
+// ---------- Middleware ----------
+app.UseFastEndpoints();
+app.UseSwaggerGen();
 
 app.Run();
