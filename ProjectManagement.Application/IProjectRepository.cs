@@ -1,6 +1,6 @@
 ﻿using ProjectManagement.Domain.Entities;
 
-namespace ProjectManagement.Application.Projects;
+namespace ProjectManagement.Application;
 
 public interface IProjectRepository
 {

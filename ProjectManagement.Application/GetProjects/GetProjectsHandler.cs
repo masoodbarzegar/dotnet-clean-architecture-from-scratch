@@ -1,6 +1,6 @@
 ﻿using ProjectManagement.Domain.Entities;
 
-namespace ProjectManagement.Application.Projects.GetProjects;
+namespace ProjectManagement.Application.GetProjects;
 
 public class GetProjectsHandler
 {

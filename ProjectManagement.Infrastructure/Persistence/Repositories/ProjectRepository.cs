@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProjectManagement.Application.Projects;
+using ProjectManagement.Application;
 using ProjectManagement.Domain.Entities;
 using ProjectManagement.Infrastructure.Persistence;
 

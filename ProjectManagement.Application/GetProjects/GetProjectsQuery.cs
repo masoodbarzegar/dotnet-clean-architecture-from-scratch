@@ -1,4 +1,4 @@
-﻿namespace ProjectManagement.Application.Projects.GetProjects;
+﻿namespace ProjectManagement.Application.GetProjects;
 
 public class GetProjectsQuery
 {
