@@ -35,7 +35,10 @@ public class GetProjectsEndpoint
         var query = new GetProjectsQuery
         {
             Page = req.Page,
-            PageSize = req.PageSize
+            PageSize = req.PageSize,
+            Search = req.Search,
+            SortBy = req.SortBy ?? "id",
+            Order = req.Order ?? "asc"
         };
 
         var (items, total) = await _handler.Handle(query, ct);

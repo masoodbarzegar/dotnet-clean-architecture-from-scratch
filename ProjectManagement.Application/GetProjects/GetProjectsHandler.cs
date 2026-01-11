@@ -13,12 +13,13 @@ public class GetProjectsHandler
     public async Task<(IReadOnlyList<ProjectListItemDto> Items, int TotalCount)> 
         Handle(GetProjectsQuery query, CancellationToken ct)
     {
-        var total = await _repository.CountAsync(ct);
-
-        var projects = await _repository.GetPageAsync(
-             page: query.Page,
-             pageSize: query.PageSize,
-             ct: ct
+        var (projects, total) = await _repository.GetPageAsync(
+            query.Page,
+            query.PageSize,
+            query.Search,
+            query.SortBy,
+            query.Order,
+            ct
         );
 
         var items = projects

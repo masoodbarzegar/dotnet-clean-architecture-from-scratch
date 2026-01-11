@@ -6,9 +6,12 @@ public interface IProjectRepository
 {
     Task<int> CountAsync(CancellationToken ct);
 
-    Task<List<Project>> GetPageAsync(
+    Task<(List<Project> Items, int TotalCount)> GetPageAsync(
         int page,
         int pageSize,
+        string? search,
+        string sortBy,
+        string order,
         CancellationToken ct);
 
 }
