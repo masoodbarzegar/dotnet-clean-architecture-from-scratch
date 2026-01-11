@@ -4,5 +4,5 @@ namespace ProjectManagement.Application;
 
 public interface IProjectRepository
 {
-    Task<List<Project>> GetAllAsync();
+    Task<List<Project>> GetAllAsync(CancellationToken ct);
 }

@@ -14,10 +14,8 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<List<Project>> GetAllAsync()
+    public async Task<List<Project>> GetAllAsync(CancellationToken ct)
     {
-        return await _context.Projects
-            .AsNoTracking()
-            .ToListAsync();
+        return await _context.Projects.ToListAsync(ct);
     }
 }

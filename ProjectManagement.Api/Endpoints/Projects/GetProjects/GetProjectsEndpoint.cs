@@ -5,7 +5,7 @@ using ProjectManagement.Application.GetProjects;
 namespace ProjectManagement.Api.Endpoints.Projects.GetProjects;
 
 public class GetProjectsEndpoint
-    : EndpointWithoutRequest<List<ProjectListItemDto>>
+    : Endpoint<GetProjectsRequest, GetProjectsResponse>
 {
     private readonly GetProjectsHandler _handler;
 
@@ -27,9 +27,23 @@ public class GetProjectsEndpoint
 
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(
+         GetProjectsRequest req,
+         CancellationToken ct)
     {
-        var result = await _handler.Handle(new GetProjectsQuery());
-        Response = result;
+        // Mapping: Request → Query
+        var query = new GetProjectsQuery
+        {
+            Page = req.Page,
+            PageSize = req.PageSize
+        };
+
+        var result = await _handler.Handle(query, ct);
+
+        // Mapping: Result → Response
+        Response = new GetProjectsResponse
+        {
+            Items = result
+        };
     }
 }

@@ -10,16 +10,15 @@ public class GetProjectsHandler
         _repository = repository;
     }
 
-    public async Task<List<ProjectListItemDto>> Handle(GetProjectsQuery query)
+    public async Task<List<ProjectListItemDto>> Handle(
+    GetProjectsQuery query,
+    CancellationToken ct)
     {
-        GetProjectsQueryValidator.Validate(query);
-
-        var projects = await _repository.GetAllAsync();
+        var projects = await _repository.GetAllAsync(ct);
 
         return projects
             .Select(ProjectPresentationPolicy.ToListItem)
             .ToList();
-
     }
 }
 
