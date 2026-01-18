@@ -21,7 +21,20 @@ builder.Services.SwaggerDocument(o =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5185")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("BlazorPolicy");
 
 // Seed Data (Dev only)
 using (var scope = app.Services.CreateScope())

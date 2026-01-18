@@ -1,0 +1,62 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h1>Index Loaded</h1>
+
+
+@* <pre>
+@System.Text.Json.JsonSerializer.Serialize(
+    _projects,
+        new System.Text.Json.JsonSerializerOptions
+        {
+                WriteIndented = true
+        })
+</pre> *@
+
+
+@if (_error != null)
+{
+    <pre style="color:red">@_error</pre>
+}
+else if (_projects == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var p in _projects.Items)
+        {
+            <li>@p.DisplayName</li>
+        }
+    </ul>
+}
+
+@code {
+    private ProjectsResponse? _projects;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _projects = await Http.GetFromJsonAsync<ProjectsResponse>(
+                "projects?page=1&pageSize=5");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.ToString();
+        }
+    }
+
+    public class ProjectsResponse
+    {
+        public List<ProjectItem> Items { get; set; } = [];
+    }
+
+    public class ProjectItem
+    {
+        public string ProjectId { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+    }
+}
