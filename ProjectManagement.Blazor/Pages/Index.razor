@@ -27,6 +27,27 @@ else
             <li>@p.DisplayName</li>
         }
     </ul>
+    @if (_projects != null && TotalPages > 1)
+    {
+        <div class="d-flex align-items-center gap-2 mt-3">
+            <button class="btn btn-secondary"
+                    @onclick="PrevPage"
+                    disabled="@(_currentPage == 1 || _isLoading)">
+                ◀ Prev
+            </button>
+
+            <span>
+                Page @_currentPage of @TotalPages
+            </span>
+
+            <button class="btn btn-secondary"
+                    @onclick="NextPage"
+                    disabled="@(_currentPage == TotalPages || _isLoading)">
+                Next ▶
+            </button>
+        </div>
+    }
+
 }
 
 @code {
@@ -45,13 +66,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadProjectsAsync();
+    }
+
+    private async Task LoadProjectsAsync()
+    {
         _isLoading = true;
         _error = null;
 
         try
         {
             _projects = await Http.GetFromJsonAsync<ProjectsResponse>(
-            $"projects?page={_currentPage}&pageSize={_pageSize}");
+                $"projects?page={_currentPage}&pageSize={_pageSize}");
         }
         catch (HttpRequestException)
         {
@@ -65,6 +91,22 @@ else
         {
             _isLoading = false;
         }
+    }
+
+    private async Task PrevPage()
+    {
+        if (_currentPage <= 1) return;
+
+        _currentPage--;
+        await LoadProjectsAsync();
+    }
+
+    private async Task NextPage()
+    {
+        if (_currentPage >= TotalPages) return;
+
+        _currentPage++;
+        await LoadProjectsAsync();
     }
 
     public class ProjectsResponse
