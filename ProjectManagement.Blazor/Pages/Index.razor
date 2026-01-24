@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject HttpClient Http
+@inject NavigationManager Nav
 
 <h1>Index Loaded</h1>
 
@@ -21,8 +22,22 @@ else if (_projects == null && !_isLoading )
 }
 else
 {
+    <div class="d-flex gap-2 mb-3">
+        <input class="form-control"
+               placeholder="Search projects..."
+               value="@_search"
+               @oninput="OnSearchInput" />
+
+        <select class="form-select w-auto"
+                value="@_sort"
+                @onchange="OnSortChanged">
+            <option value="name">Name (A–Z)</option>
+            <option value="name_desc">Name (Z–A)</option>
+        </select>
+    </div>
+
     <ul>
-        @foreach (var p in _projects.Items)
+        @foreach (var p in _projects!.Items)
         {
             <li>@p.DisplayName</li>
         }
@@ -55,6 +70,34 @@ else
     private bool _isLoading;
     private string? _error;
 
+    private string? _search;
+    private string _sort = "name";
+
+    private CancellationTokenSource? _searchCts;
+
+    private string? Search
+    {
+        get => _search;
+        set
+        {
+            if (_search == value) return;
+            _search = value;
+            _currentPage = 1;
+            _ = LoadProjectsAsync();
+        }
+    }
+    private string Sort
+    {
+        get => _sort;
+        set
+        {
+            if (_sort == value) return;
+            _sort = value;
+            _currentPage = 1;
+            _ = LoadProjectsAsync();
+        }
+    }
+
     private int _currentPage = 1;
     private int _pageSize = 5;
 
@@ -76,8 +119,20 @@ else
 
         try
         {
-            _projects = await Http.GetFromJsonAsync<ProjectsResponse>(
-                $"projects?page={_currentPage}&pageSize={_pageSize}");
+            var query = new List<string>
+            {
+                $"page={_currentPage}",
+                $"pageSize={_pageSize}",
+                $"sort={_sort}"
+            };
+            
+            if (!string.IsNullOrWhiteSpace(_search))
+                query.Add($"search={Uri.EscapeDataString(_search ?? "")}");
+
+            var url = "projects?" + string.Join("&", query);
+
+            _projects = await Http.GetFromJsonAsync<ProjectsResponse>(url);
+
         }
         catch (HttpRequestException)
         {
@@ -91,6 +146,52 @@ else
         {
             _isLoading = false;
         }
+
+        // UpdateQueryString();
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        _search = e.Value?.ToString();
+        _currentPage = 1;
+
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(400, _searchCts.Token); // debounce
+            await LoadProjectsAsync();
+        }
+        catch (TaskCanceledException)
+        {
+            // user typed again – ignore
+        }
+    }
+
+    private async Task OnSortChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (value == _sort) return;
+
+        _sort = value ?? "name";
+        _currentPage = 1;
+        await LoadProjectsAsync();
+    }
+
+    private void UpdateQueryString()
+    {
+        var query = new Dictionary<string, object?>
+        {
+            ["page"] = _currentPage,
+            ["pageSize"] = _pageSize,
+            ["sort"] = Sort,
+            ["search"] = Search
+        };
+
+        Nav.NavigateTo(
+            Nav.GetUriWithQueryParameters(query),
+            replace: true);
     }
 
     private async Task PrevPage()

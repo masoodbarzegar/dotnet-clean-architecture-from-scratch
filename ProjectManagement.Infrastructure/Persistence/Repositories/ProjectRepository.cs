@@ -28,10 +28,21 @@ public class ProjectRepository : IProjectRepository
         CancellationToken ct)
     {
         IQueryable<Project> q = _context.Projects;
-       
-        if (!string.IsNullOrWhiteSpace(search))
-            q = q.Where(p => p.Name.Contains(search));
 
+        // Search
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.ToLower();
+            q = q.Where(p => p.Name.ToLower().Contains(term));
+        }
+
+        // Count total before pagination
+        var total = await q.CountAsync(ct);
+
+        // Sorting
+        var sort = sortBy.ToLower();
+        var dir = order.ToLower();
+        
         q = (sortBy, order) switch
         {
             ("name", "desc") => q.OrderByDescending(p => p.Name),
@@ -44,8 +55,8 @@ public class ProjectRepository : IProjectRepository
             _ => q.OrderBy(p => p.Id),
         };
 
-        var total = await q.CountAsync(ct);
 
+        // PAGINATION
         var skip = (page - 1) * pageSize;
 
         var items = await q
