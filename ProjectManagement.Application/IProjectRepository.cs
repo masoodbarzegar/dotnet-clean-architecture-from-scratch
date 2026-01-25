@@ -14,4 +14,7 @@ public interface IProjectRepository
         string order,
         CancellationToken ct);
 
+    Task AddAsync(Project project, CancellationToken ct);
+
+
 }

@@ -1,0 +1,97 @@
+﻿@page "/projects/create"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Create Project</h3>
+
+<EditForm Model="_model" OnValidSubmit="CreateProjectAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="card" style="max-width: 500px;">
+        <div class="card-body">
+
+            <div class="mb-2">
+                <InputText class="form-control"
+                           placeholder="Enter project name"
+                           @bind-Value="_model.Name"
+                           disabled="@_isSubmitting" />
+
+                <ValidationMessage For="() => _model.Name" />
+            </div>
+
+            <button class="btn btn-primary mt-3"
+                    type="submit"
+                    disabled="@_isSubmitting">
+                @(_isSubmitting ? "Creating..." : "Create")
+            </button>
+
+            @if (_error != null)
+            {
+                <div class="alert alert-danger mt-3">
+                    @_error
+                </div>
+            }
+
+            @if (_success)
+            {
+                <div class="alert alert-success mt-3">
+                    Project created successfully
+                </div>
+            }
+
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CreateProjectRequest _model = new();
+    private bool _isSubmitting;
+    private string? _error;
+    private bool _success;
+
+    public class CreateProjectRequest
+    {
+        [Required(ErrorMessage = "Project name is required")]
+        [MinLength(3, ErrorMessage = "Project name must be at least 3 characters")]
+        [MaxLength(100, ErrorMessage = "Project name cannot exceed 100 characters")]
+        public string Name { get; set; } = "";
+    }
+
+    public class CreateProjectResponse
+    {
+        public string ProjectId { get; set; } = "";
+        public string Name { get; set; } = "";
+    }
+
+    private async Task CreateProjectAsync()
+    {
+        _isSubmitting = true;
+        _error = null;
+        _success = false;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync(
+                "projects",
+                new { name = _model.Name }
+            );
+
+            response.EnsureSuccessStatusCode();
+
+
+            _success = true;
+            await Task.Delay(1000);
+            Nav.NavigateTo("/");
+
+        }
+        catch (Exception)
+        {
+            _error = "Failed to create project.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

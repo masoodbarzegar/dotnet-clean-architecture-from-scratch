@@ -66,4 +66,10 @@ public class ProjectRepository : IProjectRepository
 
         return (items, total);
     }
+
+    public async Task AddAsync(Project project, CancellationToken ct)
+    {
+        _context.Projects.Add(project);
+        await _context.SaveChangesAsync(ct);
+    }
 }
